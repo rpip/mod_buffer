@@ -72,7 +72,7 @@ start_link(Args) when is_list(Args) ->
 %%--------------------------------------------------------------------
 init(Args) ->
    {context, Context} = proplists:lookup(context, Args),
-   %% load all buffer from db
+   %% load all buffers from db
    BufferQueue = [],
    {ok, #state{context=z_context:new(Context), buffer_queue=BufferQueue}}.
 

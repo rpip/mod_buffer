@@ -13,6 +13,7 @@
 -export([init/1, html/1, is_authorized/2]).
 
 -include_lib("controller_html_helper.hrl").
+-include_lib("include/zotonic.hrl").
 
 
 %%%===================================================================
@@ -29,7 +30,6 @@ html(Context) ->
     Html = z_template:render("buffer.tpl", Vars, Context),
     z_context:output(Html, Context).
  
-
 %%--------------------------------------------------------------------
 %% @doc
 %% @spec
