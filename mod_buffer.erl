@@ -12,8 +12,9 @@
 -author("Mawuli Adzaku <mawuli@mawuli.me>").
 -behaviour(gen_server).
 
--mod_title("Buffer App").
+-mod_title("Social Buffer").
 -mod_description("Automagically share articles, pictures, videos, RSS Feed links through the day!. Inspired by http://bufferapp.com").
+-mod_depends([admin]).
 -mod_prio(500).
 
 %% API
@@ -25,7 +26,8 @@
 
 -define(SERVER, ?MODULE). 
 -include_lib("zotonic.hrl").
--record(state, {}).
+-include_lib("modules/mod_admin/include/admin_menu.hrl").
+-record(state, {context, buffer_queue,}).
 
 %%%===================================================================
 %%% API
@@ -57,8 +59,8 @@ start_link(Args) when is_list(Args) ->
 %% @end
 %%--------------------------------------------------------------------
 init(Args) ->
-    {context, Context} = proplists:lookup(context, Args),
-    {ok, state#{context=z_context:new(Context)}}.
+   {context, Context} = proplists:lookup(context, Args),
+   {ok, #state{context=z_context:new(Context)}}.
 
 %%--------------------------------------------------------------------
 %% @private
