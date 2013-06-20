@@ -14,10 +14,10 @@
 -behaviour(gen_server).
 
 -mod_title("Social Buffer").
--mod_description("Automagically share articles, pictures, videos, RSS Feed links through the day!. Inspired by http://bufferapp.com").
+-mod_description("Automagically share articles, pictures, videos, and RSS Feed links through the day!. Inspired by http://bufferapp.com").
 -mod_depends([admin,twitter]).
+-mod_provides([buffer]).
 -mod_prio(500).
-
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
