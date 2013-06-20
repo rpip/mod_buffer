@@ -6,7 +6,8 @@
 %%% @end
 %%% Created : 20 Jun 2013 by Mawuli Adzaku<mawuli@mawuli.me>
 %%% @todo : add_item, add_feed, get_all, is_rss, parse_feed,
-%%% get_feed_data, share_buffer(now or schedule),
+%%% get_feed_data, share_buffer(now or schedule)
+%%% @todo :  custom type specs and table initialization
 %%%-------------------------------------------------------------------
 -module(mod_buffer).
 -author("Mawuli Adzaku <mawuli@mawuli.me>").
@@ -14,7 +15,7 @@
 
 -mod_title("Social Buffer").
 -mod_description("Automagically share articles, pictures, videos, RSS Feed links through the day!. Inspired by http://bufferapp.com").
--mod_depends([admin]).
+-mod_depends([admin,twitter]).
 -mod_prio(500).
 
 
@@ -31,6 +32,11 @@
 -include_lib("zotonic.hrl").
 -include_lib("modules/mod_admin/include/admin_menu.hrl").
 -record(state, {context, buffer_queue}).
+
+%% Request URLS
+%define(Twitter, https://api.twitter.com/1/statuses/update.json
+%params-> status, include_entities:true
+
 
 %%%===================================================================
 %%% API
