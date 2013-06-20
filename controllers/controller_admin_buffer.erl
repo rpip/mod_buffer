@@ -11,10 +11,25 @@
 
 %% API
 -export([]).
+-export([
+    is_authorized/2,
+    event/2
+]).
+
+-include_lib("controller_html_helper.hrl").
+
 
 %%%===================================================================
 %%% API
 %%%===================================================================
+is_authorized(ReqData, Context) ->
+    z_acl:wm_is_authorized(use, mod_buffer, ReqData, Context).
+
+
+html(Context) ->
+    Vars = [],
+    Html = z_template:render("buffer.tpl", Vars, Context),
+    z_context:output(Html, Context).
 
 %%--------------------------------------------------------------------
 %% @doc
