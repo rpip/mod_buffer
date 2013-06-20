@@ -31,7 +31,7 @@
 -define(SERVER, ?MODULE). 
 -include_lib("zotonic.hrl").
 -include_lib("modules/mod_admin/include/admin_menu.hrl").
--record(state, {context, buffer, buffer}).
+-record(state, {context, twitter_pid, buffer}).
 
 %% Request URLS
 %define(Twitter, https://api.twitter.com/1/statuses/update.json

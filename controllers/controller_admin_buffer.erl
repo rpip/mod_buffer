@@ -18,15 +18,8 @@
 %%%===================================================================
 %%% API
 %%%===================================================================
-%init(DispatchArgs) ->
-%     {ok, DispatchArgs}.
-
 is_authorized(ReqData, Context) ->
    z_acl:wm_is_authorized(use, mod_buffer, ReqData, Context).
-
-%% @doc Check if the current user is allowed to view the resource. 
-%is_authorized(ReqData, Context) ->
-%   controller_template:is_authorized(ReqData, Context).
 
 html(Context) ->
     Vars = [],
