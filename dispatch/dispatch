@@ -1,0 +1,4 @@
+%% -*- mode: erlang -*-
+[
+ {admin_buffer, [ "admin", "buffer" ], controller_admin_buffer, []},
+].

@@ -17,21 +17,33 @@
 -mod_depends([admin]).
 -mod_prio(500).
 
-%% API
--export([start_link/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
+-export([start_link/1]).
+
+%% interface functions
+-export([observe_admin_menu/3]).
+ 
 
 -define(SERVER, ?MODULE). 
 -include_lib("zotonic.hrl").
 -include_lib("modules/mod_admin/include/admin_menu.hrl").
--record(state, {context, buffer_queue,}).
+-record(state, {context, buffer_queue}).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
+observe_admin_menu(admin_menu, Acc, Context) ->
+    [
+     #menu_item{id=admin_buffer,
+                parent=admin_modules,
+                label=?__("Social Buffer", Context),
+                url={admin_buffer},
+                visiblecheck={acl, use, mod_buffer}}
+     
+     |Acc].
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -41,7 +53,7 @@
 %% @end
 %%--------------------------------------------------------------------
 start_link(Args) when is_list(Args) ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, Args, []).
+   gen_server:start_link({local, ?SERVER}, ?MODULE, Args, []).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -60,7 +72,9 @@ start_link(Args) when is_list(Args) ->
 %%--------------------------------------------------------------------
 init(Args) ->
    {context, Context} = proplists:lookup(context, Args),
-   {ok, #state{context=z_context:new(Context)}}.
+   %% load all buffer from db
+   BufferQueue = [],
+   {ok, #state{context=z_context:new(Context), buffer_queue=BufferQueue}}.
 
 %%--------------------------------------------------------------------
 %% @private
