@@ -78,6 +78,8 @@ start_link(Args) when is_list(Args) ->
 %%--------------------------------------------------------------------
 init(Args) ->
    {context, Context} = proplists:lookup(context, Args),
+   z_notifier:observe(restart_twitter, self(), Context),
+
    %% load all buffers from db
    BufferQueue = [],
    {ok, #state{context=z_context:new(Context), buffer_queue=BufferQueue}}.
