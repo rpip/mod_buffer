@@ -15,7 +15,7 @@
 </ul>
 
 <div id="content">
-
+ {% include "buffer_list.tpl" %}
 </div>
 
 </div>
