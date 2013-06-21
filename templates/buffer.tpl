@@ -21,4 +21,5 @@
 </div>
 
 {% lib "js/buffer.js" %}
+{% lib "css/buffer.css" %}
 {% endblock %} 

@@ -22,8 +22,6 @@ z-index: 101;
 .timeline ol.timeline li .content ul.actions{
 list-style:none;
 text-transform:uppercase;
-display:inline;
-padding: 5px;
 }
 
 
