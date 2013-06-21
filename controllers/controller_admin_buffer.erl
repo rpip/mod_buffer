@@ -10,7 +10,7 @@
 -author("Mawuli Adzaku <mawuli@mawuli.me>").
 
 %% API
--export([html/1, is_authorized/2]).
+-export([html/1, is_authorized/2, event/2]).
 
 -include_lib("controller_html_helper.hrl").
 
@@ -25,7 +25,13 @@ html(Context) ->
     Vars = [],
     Html = z_template:render("buffer.tpl", Vars, Context),
     z_context:output(Html, Context).
- 
+
+event({postback,{buffer_list, _Args}, _TriggerId, _TargetId}, Context) -> 
+    z_render:growl(?__("Listing buffered items.", Context), Context);
+
+event({postback,{buffer_logs, _Args}, _TriggerId, _TargetId}, Context) -> 
+    z_render:growl(?__("Social Buffer Logs.", Context), Context).
+     
 %%--------------------------------------------------------------------
 %% @doc
 %% @spec

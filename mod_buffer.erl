@@ -27,6 +27,8 @@
 %% interface functions
 -export([observe_admin_menu/3]).
  
+%% API
+-export([share_buffer/1, share/1]).
 
 -define(SERVER, ?MODULE). 
 -include_lib("zotonic.hrl").
@@ -198,5 +200,12 @@ share_buffer({Buffer, Context}) when is_list(Buffer)->
             not_configured;
         _ ->
             z_session_manager:broadcast(#broadcast{type="notice", message="ready to share social buffer...", title="Social Buffer", stay=false}, Context), 
+            URL = "",
             %% spawn a share process and return the pid
             spawn_link(?MODULE, share, [URL, Buffer, 5, Context])
+     end.
+
+share(_Args) ->
+    ok.
+
+
