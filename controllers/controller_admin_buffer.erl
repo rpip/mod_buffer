@@ -30,8 +30,14 @@ event({postback,{buffer_list, _Args}, _TriggerId, _TargetId}, Context) ->
     z_render:growl(?__("Listing buffered items.", Context), Context);
 
 event({postback,{buffer_logs, _Args}, _TriggerId, _TargetId}, Context) -> 
-    z_render:growl(?__("Social Buffer Logs.", Context), Context).
+    z_render:growl(?__("Social Buffer Logs.", Context), Context);
+
+event({postback,{buffer_help, _Args}, _TriggerId, _TargetId}, Context) -> 
+    z_render:growl(?__("Social Buffer Help.", Context), Context);
      
+event({postback,_Params, _TriggerId, _TargetId}, Context) -> 
+    z_render:growl(?__("Social Buffer : Unmatched postback params.", Context), Context).
+
 %%--------------------------------------------------------------------
 %% @doc
 %% @spec

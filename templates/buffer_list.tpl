@@ -20,7 +20,7 @@
         
         <ul class="actions pull-righ">
           <li class="edit"><a><i class="icon-edit"></i>Edit</a></li>
-          <li class="delete"><a><i class="icon-delete"></i>Delete</a></li>
+          <li class="delete"><a><i class="icon-trash"></i>Delete</a></li>
           <li class="share-now"><a><i class="icon-share"></i>Share Now</a></li>
         </ul>
 
