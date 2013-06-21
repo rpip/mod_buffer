@@ -1,9 +1,9 @@
 {% extends "admin_base.tpl" %}
 {% block content %}
 
-<h1>Social Buffer</h1>
+<h2>{_ Social Buffer _}</h2>
 <div id="admin_buffer">
- <ul class="nav nav-tabs">
+ <ul class="nav nav-tabs" id="buffer_menu">
   <li class="active buffer-menu">
   {% wire id="list" postback={buffer_list} target="content" %}
     <a href="#" id="list">Buffer</a>
@@ -20,4 +20,5 @@
 
 </div>
 
- {% endblock %} 
+{% lib "js/buffer.js" %}
+{% endblock %} 
