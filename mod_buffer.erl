@@ -28,7 +28,8 @@
 -export([observe_admin_menu/3]).
  
 %% API
--export([share_buffer/1, share/1]).
+-export([share_buffer/1, share/1, add_item/1, add_feed/1, get_all/1, is_rss/1, parse_feed/1,
+get_feed_data/1]).
 
 -define(SERVER, ?MODULE). 
 -include_lib("zotonic.hrl").
@@ -208,4 +209,21 @@ share_buffer({Buffer, Context}) when is_list(Buffer)->
 share(_Args) ->
     ok.
 
+get_all(Context)->
+  ok.
+
+add_item(Item) ->
+    ok.
+
+is_rss(Args) ->
+    ok.
+
+add_feed(URL) ->
+    ok.
+
+get_feed_data(URL) ->
+    ok.
+
+parse_feed(Feed)->
+    ok.
 
