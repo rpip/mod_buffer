@@ -1,7 +1,8 @@
 # Mod_Buffer for Zotonic
 ===========================
 Automagically share articles, pictures, videos, RSS Feed links through the day!
-Inspired by http://bufferapp.com
+Inspired by http://bufferapp.com, and currently supports only Twitter.
+
 
 ## UI sections
 Tentative user interface that will be rendered under the module's
@@ -21,11 +22,12 @@ settings dispatch(http://example.com/admin/buffer)
   5. view today's schedule(default), If none, view all
   6. view by date(D/M/Y)
 
-* Settings
+* Settings - should be done via config tab in the Zotonic admin
  1. Enable url shortening ?
  2. Log activities ?
  3. Rebuffer failed buffers?
  4. Add suport for timezones, so posts/updates are made relative to user's local time
+ 5. Network supported: Twitter, Facebook, Google Plus, and email especially Gmail
 
 **Actions for a buffer item : add, delete, share now, edit, change schedule**
 
