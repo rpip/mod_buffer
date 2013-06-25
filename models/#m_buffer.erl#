@@ -1,9 +1,9 @@
-%% @author Mawuli Adzaku <mawuli@mawuli.me>
-%% @copyright 2013 Mawuli Adzaku
-%% Date: 25-06-2013
-%% @doc Simple buffer module. Implements datamodel logic for mod_buffer.
+%% @author Marc Worrell <marc@worrell.nl>
+%% @copyright 2010 Marc Worrell
+%% Date: 2010-01-15
+%% @doc Simple comment module. Adds comments to any rsc.
 
-%% Copyright 2013 Mawuli Adzaku
+%% Copyright 2010 Mawuli Adzaku
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -40,31 +40,3 @@
 
 -include_lib("zotonic.hrl").
 
-m_find_value(a,b,c)->
-    ok.
-m_to_list(a,b)->
-    ok.
-m_value(a,b)-> 
-    ok.
-    
-list_rsc(a,b)->
-    ok.
-
-get(a,b)->
-    ok.
-
-insert(1,2,3,4,5,6)->
-    ok.
-    
-delete(a,b)->
-    ok.
- 
-toggle(a,b)->
-    ok.
-
-update(1,2,3,4,5,6,7)->
-    ok.
-
-search(1,2,3)->
-    ok.
-   
