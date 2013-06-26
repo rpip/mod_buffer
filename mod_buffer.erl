@@ -25,10 +25,10 @@
 -export([start_link/1]).
 
 %% interface functions
--export([observe_admin_menu/3]).
+-export([observe_admin_menu/3, manage_schema/2]).
  
 %% API
--export([share_buffer/1, share/1, add_item/1, add_feed/1, get_all/1, is_rss/1, parse_feed/1,
+-export([share_buffer/2, share/1, add_item/1, add_feed/1, get_all/1, is_rss/1, parse_feed/1,
 get_feed_data/1]).
 
 -define(SERVER, ?MODULE). 
@@ -87,7 +87,7 @@ init(Args) ->
    Buffer = [],
 
    %% Start the twitter process
-   case share_buffer({Buffer,Context}) of
+   case share_buffer(Buffer,Context) of
         Pid when is_pid(Pid) ->
             {ok, #state{context=z_context:new(Context),twitter_pid=Pid, buffer=Buffer}};
         undefined ->
@@ -130,7 +130,7 @@ handle_cast({restart_twitter, _Context}, #state{context=Context,twitter_pid=Pid,
     case Pid of
         undefined ->
             %% not running
-            Pid2 = share_buffer({Buffer, Context}),
+            Pid2 = share_buffer(Buffer, Context),
             {noreply, #state{context=Context,twitter_pid=Pid2, buffer=Buffer}};
         _ ->
             %% Exit the process; will be started again.
@@ -183,7 +183,35 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-share_buffer({Buffer, Context}) when is_list(Buffer)->
+%% @doc Install tables used for storing survey results
+manage_schema(install, Context) ->
+    case z_db:table_exists(buffer, Context) of
+        false ->
+            z_db:create_table(buffer, [
+                        #column_def{name=id, type="serial", is_nullable=false},
+                        #column_def{name=user_id, type="integer", is_nullable=true},
+                        #column_def{name=content, type="character varying", length=140, is_nullable=false},
+                        #column_def{name=tags, type="character varying", length=32, is_nullable=false},
+                     #column_def{name=destination, type="character varying", length=32, is_nullable=false},
+                        #column_def{name=status, type="character varying", length=32, is_nullable=false},
+                        #column_def{name=created, type="timestamp", is_nullable=true},
+                        #column_def{name=modified, type="timestamp", is_nullable=true}
+                    ], Context);
+        true ->
+            ok
+    end,
+    z_datamodel:manage(
+      mod_buffer,
+      #datamodel{categories=
+                 [
+                  {buffer, undefined, [{title, "Buffer"}]}
+                 ]}, Context),
+
+    ok.
+
+
+
+share_buffer(Buffer, Context) when is_list(Buffer)->
     Login = case m_config:get_value(?MODULE, api_login, false, Context) of
                 LB when is_binary(LB) ->
                     binary_to_list(LB);
