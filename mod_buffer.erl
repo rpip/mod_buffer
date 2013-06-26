@@ -183,7 +183,7 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-%% @doc Install tables used for storing survey results
+%% @doc Install tables used for storing buffers
 manage_schema(install, Context) ->
     case z_db:table_exists(buffer, Context) of
         false ->
@@ -194,6 +194,7 @@ manage_schema(install, Context) ->
                         #column_def{name=tags, type="character varying", length=32, is_nullable=false},
                      #column_def{name=destination, type="character varying", length=32, is_nullable=false},
                         #column_def{name=status, type="character varying", length=32, is_nullable=false},
+                        #column_def{name=schedule, type="timestamp", is_nullable=true},
                         #column_def{name=created, type="timestamp", is_nullable=true},
                         #column_def{name=modified, type="timestamp", is_nullable=true}
                     ], Context);

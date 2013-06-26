@@ -16,6 +16,10 @@
  {% wire id="help" postback={buffer_help} target="content" %}
    <a href="#" clas="buffer_menu" id="help">Help</a>
  </li>
+  <li>
+ {% wire id="buffer_new_form" postback={buffer_new_form} target="content" %}
+   <a href="#" class="buffer_menu" id="buffer_new_form">Add New Buffer</a>
+ </li>
 </ul>
 
 <div id="content">

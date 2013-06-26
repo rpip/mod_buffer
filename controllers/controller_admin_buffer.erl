@@ -34,7 +34,15 @@ event({postback,{buffer_logs, _Args}, _TriggerId, _TargetId}, Context) ->
 
 event({postback,{buffer_help, _Args}, _TriggerId, _TargetId}, Context) -> 
     z_render:growl(?__("Social Buffer Help.", Context), Context);
-     
+
+event({postback,{buffer_new_form, _Args}, _TriggerId, TargetId}, Context) -> 
+    z_render:growl(?__("Displaying new buffer form.", Context), Context),
+    Html = z_template:render("buffer_add_form.tpl", [],Context),
+    z_render:appear(TargetId,Html,Context);
+    
+event({submit, create_buffer, FormId, TargetId}, Context) ->
+    z_render:growl(?__("Adding new buffer", Context), Context);
+
 event({postback,_Params, _TriggerId, _TargetId}, Context) -> 
     z_render:growl(?__("Social Buffer : Unmatched postback params.", Context), Context).
 
