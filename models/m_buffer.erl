@@ -50,6 +50,10 @@ m_value(a,b)->
 list_rsc(a,b)->
     ok.
 
+%% @doc Fetch all buffers from the database
+list()->
+    z_db:q("select * from buffer", Context).
+    
 %% @doc Fetch a specific buffer from the database.
 %% @spec get(int(), Context) -> PropList
 get(BufferId, Context) ->
