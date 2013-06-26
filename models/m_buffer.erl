@@ -71,7 +71,7 @@ insert(Content, Tags, Schedule, Destination, Status, Context) ->
                 {user_id, z_acl:user(Context)},
                 {content, z_html:escape(z_string:trim(Content))},
                 {tags, z_html:escape(z_string:trim(Tags))},
-%                {schedule, Schedule},
+                {schedule, Schedule},
                 {destination, z_string:trim(Destination)},
                 {status, z_convert:to_integer(Status)},
                 {created, z_utils:now_msec()},
@@ -101,7 +101,7 @@ update(BufferId, Content, Tags, Schedule, Destination, Status, Context) ->
                 {id, BufferId},
                 {content, z_html:escape(z_string:trim(Content))},
                 {tags, z_html:escape(z_string:trim(Tags))},
-%                {schedule, Schedule},
+                {schedule, Schedule},
                 {destination, z_string:trim(Destination)},
                 {status, z_convert:to_integer(Status)},
                 {created, z_utils:now_msec()},
@@ -145,13 +145,4 @@ check_editable(BufferId, Context) ->
             {error, enoent}
     end.
  
-
-toggle(a,b)->
-    ok.
-
-update(1,2,3,4,5,6,7)->
-    ok.
-
-search(1,2,3)->
-    ok.
    
