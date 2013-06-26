@@ -50,15 +50,70 @@ m_value(a,b)->
 list_rsc(a,b)->
     ok.
 
-get(a,b)->
-    ok.
+%% @doc Fetch a specific buffer from the database.
+%% @spec get(int(), Context) -> PropList
+get(BufferId, Context) ->
+    z_db:assoc_props_row("select * from buffer where id = $1", [BufferId], Context).
 
-insert(1,2,3,4,5,6)->
-    ok.
+
+%% @doc Insert a new Buffer. Fetches the user information from the Context.
+%% @spec insert(Content::string(), Tags::string(), Schedule::string(), Destination::string(), Status::int(), Context) -> {ok, BufferId} | {error, Reason}
+%% @todo Convert schedule date to postgresql compatible timestamp
+insert(Content, Tags, Schedule, Destination, Status, Context) ->
+    case z_auth:is_auth(Context) 
+            orelse z_convert:to_bool(m_config:get_value(mod_buffer, anonymous, true, Context)) of
+        true ->
+            %Schedule = z_convert:to_integer(Schedule),
+	    Props = [
+                {user_id, z_acl:user(Context)},
+                {content, z_html:escape(z_string:trim(Content))},
+                {tags, z_html:escape(z_string:trim(Tags))},
+%                {schedule, Schedule},
+                {destination, z_string:trim(Destination)},
+                {gravatar_code, z_convert:to_integer(Status)},
+                {created, z_utils:now_msec()},
+                {modified, z_utils:now_msec()}
+            ],
+            case z_db:insert(buffer, Props, Context) of
+                {ok, BufferId} = Result ->
+                    z_depcache:flush({buffer, BufferId}, Context),
+                    z_notifier:notify({buffer,BufferId}, Context),
+                    Result;
+                {error, _} = Error ->
+                    Error
+            end;
+        false ->
+            {error, eacces}
+    end.
+
+
+%% @doc Delete a buffer.
+delete(BufferId, Context) ->
+    case check_editable(BufferId, Context) of
+        {ok, UserId} ->
+            z_db:q("delete from buffer where id = $1 and user_id = $2", [BufferId,UserId], Context),
+            z_depcache:flush({buffer, BufferId}, Context),
+            ok;
+        {error, _} = Error ->
+            Error
+    end.
+
     
-delete(a,b)->
-    ok.
+
+%% @doc Check if an user can edit or owns the buffer
+check_editable(BufferId, Context) ->
+    case z_db:q_row("select user_id from buffer where id = $1", [BufferId], Context) of
+        {UserId} ->
+            case (UserId /= undefined andalso z_acl:user(Context) == UserId)
+            of
+                true -> {ok, UserId};
+                false -> {error, eacces}
+            end;
+        _ ->
+            {error, enoent}
+    end.
  
+
 toggle(a,b)->
     ok.
 

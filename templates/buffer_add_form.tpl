@@ -22,7 +22,7 @@
 </div>
 
 <div class="control-group">
-    <label class="control-label" for="destination">Tags</label>
+    <label class="control-label" for="destination">Destination</label>
     <div class="controls">
       <select name="destination">
       <option value="t">Twitter</option>
