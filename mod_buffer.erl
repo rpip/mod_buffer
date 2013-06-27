@@ -187,10 +187,11 @@ manage_schema(install, Context) ->
             z_db:create_table(buffer, [
                         #column_def{name=id, type="serial", is_nullable=false},
                         #column_def{name=user_id, type="integer", is_nullable=true},
-                        #column_def{name=content, type="character varying", length=140, is_nullable=false},
+                        #column_def{name=message, type="character varying", length=140, is_nullable=false},
                      #column_def{name=destination, type="character varying", length=32, is_nullable=false},
                         #column_def{name=status, type="character varying", length=32, is_nullable=false},
-                        #column_def{name=schedule, type="timestamp", is_nullable=true},
+                        #column_def{name=day, type="date", is_nullable=true},
+                        #column_def{name=time, type="time", is_nullable=true},
                         #column_def{name=created, type="timestamp", is_nullable=true},
                         #column_def{name=modified, type="timestamp", is_nullable=true}
                     ], Context);

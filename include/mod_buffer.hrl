@@ -1,7 +1,10 @@
--record(buffer,{content::string(),
-                tags::string(),
-                day::integer(),
-                time::integer(),
+-record(buffer,{id::integer(),
+                user_id::integer(),
+                message::string(),
+                day::string(),
+                time::string(),
                 destination=[],
-                status::integer()
+                status::string(),
+                created::string(),
+                modified::string()
                }).
