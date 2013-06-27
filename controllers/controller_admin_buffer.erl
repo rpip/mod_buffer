@@ -29,9 +29,10 @@ html(Context) ->
 event({postback,{buffer_list, _Args}, _TriggerId, _TargetId}, Context) -> 
     z_render:growl(?__("Listing buffered items.", Context), Context);
 
-event({postback,{buffer_help, _Args}, _TriggerId, _TargetId}, Context) -> 
-%    Html = z_template:render("buffer_help",
-    z_render:growl(?__("Social Buffer Help.", Context), Context);
+event({postback,{buffer_help, _Args}, _TriggerId, TargetId}, Context) -> 
+    z_render:growl(?__("Social Buffer Help.", Context), Context),
+    Html = z_template:render("buffer_help.tpl",[], Context),
+    z_render:appear(TargetId,Html,Context);
 
 event({postback,{buffer_new_form, _Args}, _TriggerId, TargetId}, Context) -> 
     z_render:growl(?__("Displaying new buffer form.", Context), Context),

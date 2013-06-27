@@ -15,7 +15,7 @@
 
 -mod_title("Social Buffer").
 -mod_description("Automagically share articles, pictures, videos, and RSS Feed links through the day!. Inspired by http://bufferapp.com").
--mod_depends([admin,twitter, mod_cron]).
+-mod_depends([admin,twitter,mod_cron]).
 -mod_provides([buffer]).
 -mod_prio(500).
 

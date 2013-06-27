@@ -8,7 +8,7 @@
      </div>
 </div>
 
-
+<!-- 
 <div class="control-group">
     <label class="control-label" for="day">Day</label>
     <div class="controls">
@@ -27,6 +27,14 @@
             <span class="add-on"><i class="icon-time"></i></span>
         </div>
 </div>
+</div>
+-->
+
+<div class="control-group">
+    <label class="control-label" for="destination">Schedule</label>
+    <div class="controls">
+            <input  type="text" name="cron_rule"  class="input" placeholder="{weekly, wed, {2, am}}">
+    </div>
 </div>
 
 

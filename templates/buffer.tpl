@@ -9,17 +9,17 @@
 
 <div id="admin_buffer">
  <ul class="nav nav-tabs" id="buffer_menu">
-  <li class="active buffer-menu">
+  <li class="active">
+ {% wire id="buffer_new_form" postback={buffer_new_form} target="content" %}
+   <a href="#" class="buffer_menu" id="buffer_new_form">Add Buffer</a>
+ </li>
+ <li>
   {% wire id="list" postback={buffer_list} target="content" %}
-    <a href="#" id="list">Buffer</a>
+    <a href="#" id="list">Buffers</a>
   </li>
   <li>
  {% wire id="help" postback={buffer_help} target="content" %}
-   <a href="#" clas="buffer_menu" id="help">Help</a>
- </li>
-  <li>
- {% wire id="buffer_new_form" postback={buffer_new_form} target="content" %}
-   <a href="#" class="buffer_menu" id="buffer_new_form">Add New Buffer</a>
+   <a href="#"id="help">Help</a>
  </li>
 </ul>
 
