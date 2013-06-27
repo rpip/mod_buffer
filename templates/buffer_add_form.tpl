@@ -14,12 +14,27 @@
     </div>
 </div>
 
+
 <div class="control-group">
-    <label class="control-label" for="schedule">Schedule</label>
+    <label class="control-label" for="day">Day</label>
     <div class="controls">
-<input type="text" value="02-16-2013" name="schedule" class="datepicker" format="dd-mm-yyyy">
+    <div class="input-append">
+            <input id="datepicker1" type="text" name="day" class="input-small">
+            <span class="add-on"><i class="icon-calendar"></i></span>
+        </div>
 </div>
 </div>
+
+<div class="control-group">
+    <label class="control-label" for="time">Time</label>
+    <div class="controls">
+    <div class="input-append bootstrap-timepicker">
+            <input id="timepicker1" type="text" name="time"  class="input-small">
+            <span class="add-on"><i class="icon-time"></i></span>
+        </div>
+</div>
+</div>
+
 
 <div class="control-group">
     <label class="control-label" for="destination">Destination</label>
@@ -46,5 +61,6 @@
     </div>
 </div>
 
- 
 </form>
+
+

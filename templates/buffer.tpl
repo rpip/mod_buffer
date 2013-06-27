@@ -28,6 +28,8 @@
 
 </div>
 
+{% lib "js/bootstrap-timepicker.js" %}
 {% lib "js/buffer.js" %}
+{% lib "css/bootstrap-timepicker.css" %}
 {% lib "css/buffer.css" %}
 {% endblock %} 
