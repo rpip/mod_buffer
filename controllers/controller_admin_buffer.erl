@@ -41,7 +41,7 @@ event({postback,{buffer_new_form, _Args}, _TriggerId, TargetId}, Context) ->
     z_render:appear(TargetId,Html,Context);
     
 event({submit, create_buffer, _FormId, _TargetId}, Context) ->
-    io:format("Mod_Buffer POST DATA :  ~p", [z_context:get_q_all(Context)]),
+    io:format("Mod_Buffer POST DATA :  ~p", [z_context:get_q_all_noz(Context)]),
     z_render:growl(?__("Adding new buffer", Context), Context);
 
 event({postback,_Params, _TriggerId, _TargetId}, Context) -> 

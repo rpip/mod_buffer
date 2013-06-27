@@ -2,6 +2,11 @@
 {% block content %}
 
 <h2>{_ Social Buffer _}</h2>
+    <div class="widget">
+
+        <h3 class="widget-header">{_ Here you can manage all your buffers. _}</h3>
+        <div class="widget-content">
+
 <div id="admin_buffer">
  <ul class="nav nav-tabs" id="buffer_menu">
   <li class="active buffer-menu">
@@ -26,6 +31,8 @@
  {% include "buffer_list.tpl" %}
 </div>
 
+</div>
+</div>
 </div>
 
 {% lib "css/bootstrap-timepicker.css" %}

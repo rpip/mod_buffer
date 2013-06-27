@@ -241,13 +241,19 @@ get_all(Context)->
 add_item(Item) ->
     ok.
 
-is_rss(Args) ->
-    ok.
+is_rss(Arg) ->
+    case z_string:ends_with(".rss", Arg) or z_string:ends_with(".xml", Arg) of
+      true ->
+            true;
+      _  ->
+            false                                                                     
+      end.
 
 add_feed(URL) ->
     ok.
 
 get_feed_data(URL) ->
+    %Result httpc:request(URL).
     ok.
 
 parse_feed(Feed)->
