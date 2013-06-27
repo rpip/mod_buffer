@@ -15,7 +15,7 @@
 
 -mod_title("Social Buffer").
 -mod_description("Automagically share articles, pictures, videos, and RSS Feed links through the day!. Inspired by http://bufferapp.com").
--mod_depends([admin,twitter,mod_cron]).
+-mod_depends([admin,mod_cron]).
 -mod_provides([buffer]).
 -mod_prio(500).
 
@@ -123,18 +123,6 @@ handle_call(_Request, _From, State) ->
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_cast({restart_twitter, _Context}, #state{context=Context,twitter_pid=Pid,buffer=Buffer}=State) ->
-    case Pid of
-        undefined ->
-            %% not running
-            Pid2 = share_buffer(Buffer, Context),
-            {noreply, #state{context=Context,twitter_pid=Pid2, buffer=Buffer}};
-        _ ->
-            %% Exit the process; will be started again.
-            erlang:exit(Pid, restarting),
-            {noreply, State#state{twitter_pid=undefined,buffer=Buffer}}
-    end;
-
 handle_cast(_Msg, State) ->
     {noreply, State}.
 

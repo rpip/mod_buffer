@@ -22,5 +22,6 @@ time()       = {integer(), am | pm} | {integer(), integer(), am | pm}
 
 {daily, {every,{5,sec},{between,{0,am},{11,59,pm}}}},
 {weekly, wed, {2, am}},
+{daily, {10,30, am}}
 </pre>
 </div>
