@@ -44,16 +44,15 @@ get(BufferId, Context) ->
 
 
 %% @doc Insert a new Buffer. Fetches the user information from the Context.
-%% @spec insert(Content::string(), Tags::string(), Schedule::string(), Destination::string(), Status::int(), Context) -> {ok, BufferId} | {error, Reason}
+%% @spec insert(Content::string(), Schedule::string(), Destination::string(), Status::int(), Context) -> {ok, BufferId} | {error, Reason}
 %% @todo Convert schedule date to postgresql compatible timestamp
-insert(Content, Tags, Schedule, Destination, Status, Context) ->
+insert(Content, Schedule, Destination, Status, Context) ->
     case z_auth:is_auth(Context) of
         true ->
             %Schedule = z_convert:to_integer(Schedule),
 	    Props = [
                 {user_id, z_acl:user(Context)},
                 {content, z_html:escape(z_string:trim(Content))},
-                {tags, z_html:escape(z_string:trim(Tags))},
                 {schedule, Schedule},
                 {destination, z_string:trim(Destination)},
                 {status, z_convert:to_integer(Status)},
@@ -74,16 +73,15 @@ insert(Content, Tags, Schedule, Destination, Status, Context) ->
 
 
 %% @doc Update a Buffer. Fetches the user information from the Context.
-%% @spec update(BufferId::integer(),Content::string(), Tags::string(), Schedule::string(), Destination::string(), Status::int(), Context) -> {ok, BufferId} | {error, Reason}
+%% @spec update(BufferId::integer(),Content::string(),Schedule::string(), Destination::string(), Status::int(), Context) -> {ok, BufferId} | {error, Reason}
 %% @todo Convert schedule date to postgresql compatible timestamp
-update(BufferId, Content, Tags, Schedule, Destination, Status, Context) ->
+update(BufferId, Content, Schedule, Destination, Status, Context) ->
     case z_auth:is_auth(Context) of
         true ->
             %Schedule = z_convert:to_integer(Schedule),
 	    Props = [
                 {id, BufferId},
                 {content, z_html:escape(z_string:trim(Content))},
-                {tags, z_html:escape(z_string:trim(Tags))},
                 {schedule, Schedule},
                 {destination, z_string:trim(Destination)},
                 {status, z_convert:to_integer(Status)},

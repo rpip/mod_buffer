@@ -188,7 +188,6 @@ manage_schema(install, Context) ->
                         #column_def{name=id, type="serial", is_nullable=false},
                         #column_def{name=user_id, type="integer", is_nullable=true},
                         #column_def{name=content, type="character varying", length=140, is_nullable=false},
-                        #column_def{name=tags, type="character varying", length=32, is_nullable=false},
                      #column_def{name=destination, type="character varying", length=32, is_nullable=false},
                         #column_def{name=status, type="character varying", length=32, is_nullable=false},
                         #column_def{name=schedule, type="timestamp", is_nullable=true},
