@@ -1,4 +1,10 @@
-#admin_buffer {
+.message_editmode {
+   background-color: #FFF;
+   cursor : text;
+}
+
+.msg-textarea{
+   width: 100%;
 }
 
 .timeline ol.timeline li .content {

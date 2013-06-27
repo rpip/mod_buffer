@@ -4,15 +4,14 @@
 {% for buffer in m.buffer  %}
   <li id="buffer-{{ buffer.id }}">
     <div id="buffer_content" class="content">
-
-      <p class="message" style="display:block;">{{ buffer.message }}</p>
-       <textarea class="message" style="display:none;">{{ buffer.message }}</textarea>
+      <p id="{{ buffer.id }}" class="message" style="display:block;">{{ buffer.message }}</p>
+       <textarea id="msg-textarea-{{ buffer.id }}" class="msg-textarea message" style="display:none;">{{ buffer.message }}</textarea>
     
       <div class="meta clearfix">
         <p class="details pull-left">
           <span>
             <time original-title="Scheduled by Social Buffer"> 
-              <i class="icon-time"></i> {{ buffer.schedule }}
+ <a data-toggle="tooltip" title="Schedule : {{ buffer.schedule }}">              <i class="icon-time"></i> {{ buffer.schedule }}</a>
             </time>
           </span>
           </p>
