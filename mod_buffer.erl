@@ -33,6 +33,7 @@ get_feed_data/1]).
 
 -define(SERVER, ?MODULE). 
 -include_lib("zotonic.hrl").
+-include_lib("./include/mod_buffer.hrl").
 -include_lib("modules/mod_admin/include/admin_menu.hrl").
 -record(state, {context, twitter_pid, buffer}).
 
