@@ -7,13 +7,6 @@
      </div>
 </div>
 
-<div class="control-group">
-    <label class="control-label" for="tags">Tags</label>
-    <div class="controls">
-     <input type="text" name="tags" placeholder="tag1, tag2,tag3..."/>
-    </div>
-</div>
-
 
 <div class="control-group">
     <label class="control-label" for="day">Day</label>
