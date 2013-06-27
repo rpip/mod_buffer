@@ -33,7 +33,7 @@ get_feed_data/1]).
 
 -define(SERVER, ?MODULE). 
 -include_lib("zotonic.hrl").
--include_lib("./include/mod_buffer.hrl").
+-include("include/mod_buffer.hrl").
 -include_lib("modules/mod_admin/include/admin_menu.hrl").
 -record(state, {context, twitter_pid, buffer}).
 
@@ -78,8 +78,9 @@ start_link(Args) when is_list(Args) ->
 %%--------------------------------------------------------------------
 init(Args) ->
    {context, Context} = proplists:lookup(context, Args),
-   z_notifier:observe(restart_twitter, self(), Context),
 
+   manage_schema(install, Context),
+   
    %% load all buffered posts from db
    Buffer = [],
 
@@ -175,11 +176,10 @@ manage_schema(install, Context) ->
             z_db:create_table(buffer, [
                         #column_def{name=id, type="serial", is_nullable=false},
                         #column_def{name=user_id, type="integer", is_nullable=true},
-                        #column_def{name=message, type="character varying", length=140, is_nullable=false},
-                     #column_def{name=destination, type="character varying", length=32, is_nullable=false},
+                    #column_def{name=message, type="character varying", length=140, is_nullable=false},
+                    #column_def{name=destination, type="character varying", length=32, is_nullable=false},
+                        #column_def{name=schedule, type="character varying", length=70 ,is_nullable=true},
                         #column_def{name=status, type="character varying", length=32, is_nullable=false},
-                        #column_def{name=day, type="date", is_nullable=true},
-                        #column_def{name=time, type="time", is_nullable=true},
                         #column_def{name=created, type="timestamp", is_nullable=true},
                         #column_def{name=modified, type="timestamp", is_nullable=true}
                     ], Context);
@@ -198,12 +198,12 @@ manage_schema(install, Context) ->
 
 
 share_buffer(Buffer, Context) when is_list(Buffer)->
-    Login = case m_config:get_value(?MODULE, api_login, false, Context) of
+    Login = case m_config:get_value(?MODULE, twitter_username, false, Context) of
                 LB when is_binary(LB) ->
                     binary_to_list(LB);
                 L -> L
             end,
-    Pass  = case m_config:get_value(?MODULE, api_password, false, Context) of
+    Pass  = case m_config:get_value(?MODULE, twitter_password, false, Context) of
                 LP when is_binary(LP) ->
                     binary_to_list(LP);
                 P -> P
@@ -211,7 +211,7 @@ share_buffer(Buffer, Context) when is_list(Buffer)->
     lager:info("Twitter: (~p) Username = ~p", [z_context:site(Context), Login]),
     case Login of
         false ->
-            lager:warning("Twitter: (~p) No username/password configuration.", [z_context:site(Context)]),
+            lager:warning(": (~p) No username/password configuration.", [z_context:site(Context)]),
             not_configured;
         _ ->
             z_session_manager:broadcast(#broadcast{type="notice", message="ready to share social buffer...", title="Social Buffer", stay=false}, Context), 

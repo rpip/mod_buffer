@@ -1,9 +1,8 @@
 -record(buffer,{id::integer(),
                 user_id::integer(),
                 message::string(),
-                day::string(),
-                time::string(),
-                destination=[],
+                schedule::string(),
+                destination::list(),
                 status::string(),
                 created::string(),
                 modified::string()

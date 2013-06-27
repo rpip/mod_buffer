@@ -31,30 +31,47 @@
 
     list/1,
     get/2,
-    insert/5,
+    insert/2,
     update/6,
     delete/2
 ]).
 
 -include_lib("zotonic.hrl").
+-include("../include/mod_buffer.hrl").
 
+%% return a property of the buffer
+m_find_value(value, #m{}=M, Context) ->
+    m_value(M, Context);
 
-m_find_value(_Key, #m{value=undefined}, _Context) ->
-   undefined.
-
-%% @doc return a buffer
-m_value(BufferId, Context) ->
-    get(BufferId, Context).
+m_find_value(Key, #m{value=V} = _M, _Context) ->
+    case lists:member(Key,[id, user_id, message,schedule,destination,status, created, modifed]) of
+        true ->  proplists:get_value(Key,V);
+        false -> undefined
+    end.     
 
 %% @doc Transform a m_config value to a list, used for template loops
 %% @spec m_to_list(Source, Context) -> []
-m_to_list(_, Context) ->
-    list(Context).
+m_to_list(#m{value=_V}, Context) ->
+   list(Context).
+
+%% @doc return a buffer
+m_value(#m{value=V}, _Context) ->
+    V.
 
 
 %% @doc Fetch all buffers from the database
 list(Context)->
-    z_db:q("select * from buffer", Context).
+    Buffers = z_db:q("select * from buffer", Context),
+    BufferList = [[{id,Id},
+                 {user_id,UserId},
+                 {message,binary_to_list(Message)},
+                 {destination,binary_to_list(Destination)},
+                 {schedule,binary_to_list(Schedule)},
+                 {status,binary_to_list(Status)},
+                 {created,Created}, 
+                 {modified,Modified}]
+     || {Id,UserId,Message,Destination,Schedule,Status,Created,Modified} = _Buffer <- Buffers],
+    BufferList.
     
 %% @doc Fetch a specific buffer from the database.
 %% @spec get(int(), Context) -> PropList
@@ -63,20 +80,20 @@ get(BufferId, Context) ->
 
 
 %% @doc Insert a new Buffer. Fetches the user information from the Context.
-%% @spec insert(Content::string(), Schedule::string(), Destination::string(), Status::int(), Context) -> {ok, BufferId} | {error, Reason}
+%% @spec insert(Message::string(), Schedule::string(), Destination::string(), Status::int(), Context) -> {ok, BufferId} | {error, Reason}
 %% @todo Convert schedule date to postgresql compatible timestamp
-insert(Content, Schedule, Destination, Status, Context) ->
+insert([Message, Schedule, Destination, Status] = _PostData, Context) ->
     case z_auth:is_auth(Context) of
         true ->
-            %Schedule = z_convert:to_integer(Schedule),
+           LocalTime = erlang:localtime(),
 	    Props = [
                 {user_id, z_acl:user(Context)},
-                {content, z_html:escape(z_string:trim(Content))},
+                {message, z_html:escape(z_string:trim(Message))},
                 {schedule, Schedule},
                 {destination, z_string:trim(Destination)},
-                {status, z_convert:to_integer(Status)},
-                {created, z_utils:now_msec()},
-                {modified, z_utils:now_msec()}
+                {status, Status},
+                {created, LocalTime},
+                {modified, LocalTime}
             ],
             case z_db:insert(buffer, Props, Context) of
                 {ok, BufferId} = Result ->
@@ -92,15 +109,15 @@ insert(Content, Schedule, Destination, Status, Context) ->
 
 
 %% @doc Update a Buffer. Fetches the user information from the Context.
-%% @spec update(BufferId::integer(),Content::string(),Schedule::string(), Destination::string(), Status::int(), Context) -> {ok, BufferId} | {error, Reason}
+%% @spec update(BufferId::integer(), Message::string(),Schedule::string(), Destination::string(), Status::int(), Context) -> {ok, BufferId} | {error, Reason}
 %% @todo Convert schedule date to postgresql compatible timestamp
-update(BufferId, Content, Schedule, Destination, Status, Context) ->
+update(BufferId, Message, Schedule, Destination, Status, Context) ->
     case z_auth:is_auth(Context) of
         true ->
             %Schedule = z_convert:to_integer(Schedule),
 	    Props = [
                 {id, BufferId},
-                {content, z_html:escape(z_string:trim(Content))},
+                {message, z_html:escape(z_string:trim(Message))},
                 {schedule, Schedule},
                 {destination, z_string:trim(Destination)},
                 {status, z_convert:to_integer(Status)},

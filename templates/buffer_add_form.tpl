@@ -33,7 +33,7 @@
 <div class="control-group">
     <label class="control-label" for="destination">Schedule</label>
     <div class="controls">
-            <input  type="text" name="cron_rule"  class="input" placeholder="{weekly, wed, {2, am}}">
+            <input  type="text" name="schedule"  class="input" placeholder="{weekly, wed, {2, am}}">
     </div>
 </div>
 

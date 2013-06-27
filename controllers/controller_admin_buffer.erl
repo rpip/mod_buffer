@@ -26,8 +26,11 @@ html(Context) ->
     Html = z_template:render("buffer.tpl", Vars, Context),
     z_context:output(Html, Context).
 
-event({postback,{buffer_list, _Args}, _TriggerId, _TargetId}, Context) -> 
-    z_render:growl(?__("Listing buffered items.", Context), Context);
+event({postback,{buffer_list, _Args}, _TriggerId, TargetId}, Context) -> 
+    z_render:growl(?__("Listing buffered items.", Context), Context),
+    Buffers = m_buffer:list(Context),
+    Html = z_template:render("buffer_list.tpl",[{buffers,Buffers}], Context),
+    z_render:appear(TargetId,Html,Context);
 
 event({postback,{buffer_help, _Args}, _TriggerId, TargetId}, Context) -> 
     z_render:growl(?__("Social Buffer Help.", Context), Context),
@@ -40,7 +43,12 @@ event({postback,{buffer_new_form, _Args}, _TriggerId, TargetId}, Context) ->
     z_render:appear(TargetId,Html,Context);
     
 event({submit, create_buffer, _FormId, _TargetId}, Context) ->
-    io:format("Mod_Buffer POST DATA :  ~p", [z_context:get_q_all_noz(Context)]),
+    Message = z_context:get_q("message",Context),
+    Schedule = z_context:get_q("schedule",Context),
+    Destination = z_context:get_q("destination",Context),
+    Status = z_context:get_q("status",Context),
+    %io:format("Mod_Buffer POST DATA :  ~p", PostData),
+    m_buffer:insert([Message, Schedule, Destination, Status], Context),
     z_render:growl(?__("Adding new buffer", Context), Context);
 
 event({postback,_Params, _TriggerId, _TargetId}, Context) -> 
