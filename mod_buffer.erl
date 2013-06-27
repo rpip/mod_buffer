@@ -37,10 +37,6 @@ get_feed_data/1]).
 -include_lib("modules/mod_admin/include/admin_menu.hrl").
 -record(state, {context, twitter_pid, buffer}).
 
-%% Request URLS
-%define(Twitter, https://api.twitter.com/1/statuses/update.json
-%params-> status, include_entities:true
-
 
 %%%===================================================================
 %%% API

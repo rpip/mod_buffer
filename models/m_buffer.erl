@@ -25,30 +25,13 @@
 
 %% interface functions
 -export([
-    m_find_value/3,
-    m_to_list/2,
-    m_value/2,
-    
-    list_rsc/2,
+    list/0,
     get/2,
     insert/6,
     delete/2,
-    toggle/2,
-    update/7,
-    search/3
 ]).
 
 -include_lib("zotonic.hrl").
-
-m_find_value(a,b,c)->
-    ok.
-m_to_list(a,b)->
-    ok.
-m_value(a,b)-> 
-    ok.
-    
-list_rsc(a,b)->
-    ok.
 
 %% @doc Fetch all buffers from the database
 list()->
