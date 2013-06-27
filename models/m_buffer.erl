@@ -25,16 +25,35 @@
 
 %% interface functions
 -export([
-    list/0,
+    m_find_value/3,
+    m_to_list/2,
+    m_value/2,
+
+    list/1,
     get/2,
-    insert/6,
-    delete/2,
+    insert/5,
+    update/6,
+    delete/2
 ]).
 
 -include_lib("zotonic.hrl").
 
+
+m_find_value(_Key, #m{value=undefined}, _Context) ->
+   undefined.
+
+%% @doc return a buffer
+m_value(BufferId, Context) ->
+    get(BufferId, Context).
+
+%% @doc Transform a m_config value to a list, used for template loops
+%% @spec m_to_list(Source, Context) -> []
+m_to_list(_, Context) ->
+    list(Context).
+
+
 %% @doc Fetch all buffers from the database
-list()->
+list(Context)->
     z_db:q("select * from buffer", Context).
     
 %% @doc Fetch a specific buffer from the database.

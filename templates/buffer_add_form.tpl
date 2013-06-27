@@ -1,9 +1,10 @@
 {% wire id="new_buffer_form" type="submit" postback="create_buffer" %}
 <form id="new_buffer_form" method="post" action="postback" class="form-horizontal">
 <div class="control-group">
-    <label class="control-label" for="content">Content</label>
+    <label class="control-label" for="message">Message</label>
     <div class="controls">
-      <textarea rows="3" name="content" placeholder="140 maximum characters"></textarea>
+      <textarea rows="3" name="message" placeholder="140 maximum characters" 
+      class="message" maxlength="146"></textarea>
      </div>
 </div>
 

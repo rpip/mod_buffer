@@ -40,7 +40,7 @@ event({postback,{buffer_new_form, _Args}, _TriggerId, TargetId}, Context) ->
     Html = z_template:render("buffer_add_form.tpl", [],Context),
     z_render:appear(TargetId,Html,Context);
     
-event({submit, create_buffer, FormId, TargetId}, Context) ->
+event({submit, create_buffer, _FormId, _TargetId}, Context) ->
     io:format("Mod_Buffer POST DATA :  ~p", [z_context:get_q_all(Context)]),
     z_render:growl(?__("Adding new buffer", Context), Context);
 
