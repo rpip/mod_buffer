@@ -14,10 +14,6 @@
     <a href="#" id="list">Buffer</a>
   </li>
   <li>
- {% wire id="logs" postback={buffer_logs} target="content" %}
-   <a href="#" clas="buffer_menu" id="logs">Log</a>
- </li>
-  <li>
  {% wire id="help" postback={buffer_help} target="content" %}
    <a href="#" clas="buffer_menu" id="help">Help</a>
  </li>
