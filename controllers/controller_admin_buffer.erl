@@ -51,9 +51,16 @@ event({postback,{buffer_help, _Args}, _TriggerId, TargetId}, Context) ->
     Html = z_template:render("buffer_help.tpl",[], Context),
     z_render:appear(TargetId,Html,Context);
 
+event({postback,{buffer_delete, [{id, BufferId},{target_id,TargetId}]}, _TriggerId, _}, Context) -> 
+    m_buffer:delete(BufferId, Context), 
+    Buffers = m_buffer:list(Context),
+    Html = z_template:render("buffer_list.tpl",[{buffers,Buffers}], Context),
+    z_render:appear(TargetId,Html,Context);
+%   z_render:growl(?__("Buffer deleted", Context), Context);
+
 event({_Event, Params, _TriggerId, _TargetId}, Context) -> 
     z_render:growl(?__("Social Buffer : Unmatched event.", Context), Context),
-    io:format("Mod_Buffer  Event params :  ~p", Params).
+    io:format("Mod_Buffer  Event params :  ~p", [Params]).
 
 %%--------------------------------------------------------------------
 %% @doc

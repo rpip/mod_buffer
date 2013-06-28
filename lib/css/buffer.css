@@ -1,3 +1,8 @@
+.hidden{
+   display: none;
+   visibility:hidden;
+}
+
 .message_editmode {
    background-color: #FFF;
    cursor : text;
