@@ -3,7 +3,7 @@
    cursor : text;
 }
 
-.msg-textarea{
+#buffer_list textarea.message{
    width: 100%;
 }
 

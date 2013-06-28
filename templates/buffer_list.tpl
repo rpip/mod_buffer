@@ -3,9 +3,9 @@
 
 {% for buffer in m.buffer  %}
   <li id="buffer-{{ buffer.id }}">
-    <div id="buffer_content" class="content">
-      <p id="{{ buffer.id }}" class="message" style="display:block;">{{ buffer.message }}</p>
-       <textarea id="msg-textarea-{{ buffer.id }}" class="msg-textarea message" style="display:none;">{{ buffer.message }}</textarea>
+    <div data-buffer-id="{{ buffer.id }}"id="buffer_content" class="content">
+      <p id="message-{{ buffer.id }} " class="message" style="display:block;">{{ buffer.message }}</p>
+       <textarea id="msg-textarea-{{ buffer.id }}" class="message" style="display:none;">{{ buffer.message }}</textarea>
     
       <div class="meta clearfix">
         <p class="details pull-left">

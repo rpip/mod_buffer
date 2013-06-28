@@ -116,7 +116,7 @@ update(BufferId, Message, Schedule, Destination, Status, Context) ->
         true ->
             %Schedule = z_convert:to_integer(Schedule),
 	    Props = [
-                {id, BufferId},
+                {user_id, z_acl:user(Context)},
                 {message, z_html:escape(z_string:trim(Message))},
                 {schedule, Schedule},
                 {destination, z_string:trim(Destination)},
