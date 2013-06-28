@@ -9,9 +9,9 @@
 
 <div id="admin_buffer">
  <ul class="nav nav-tabs" id="buffer_menu">
- <li  class="active">
+  <li class="active">
   {% wire id="list" postback={buffer_list} target="content" %}
-    <a href="#" id="list">Buffers</a>
+    <a href="#" id="list">Buffer</a>
   </li>
   <li>
  {% wire id="buffer_new_form" postback={buffer_new_form} target="content" %}

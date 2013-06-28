@@ -17,10 +17,20 @@
           </p>
         
         <ul class="actions pull-righ">
-          <li class="edit"><a href="#edit/{{ buffer.id }}"><i class="icon-edit"></i>Edit</a></li>
-          <li class="delete"><a href="#delete/{{ buffer.id }}"><i class="icon-trash"></i>Delete</a></li>
-          <li class="share-now"><a href="#share-now/{{ buffer.id }}"><i class="icon-share"></i>Share Now</a></li>
-        </ul>
+          <li class="edit" id="{{ buffer.id }}">
+          <a class="edit-message-btn"  href="#edit/{{ buffer.id }}"><i class="icon-edit"></i>Edit</a></li>
+          
+          <li class="delete">
+           {% wire id="delete-{{ buffer.id }}"  action={growl text="buffer deleted"}  %}
+           <a id="delete-{{ buffer.id }}" href="#delete-{{ buffer.id }}"><i class="icon-trash"></i>Delete</a>
+          </li>
+
+          <li class="share-now">
+           {% wire id="share-{{ buffer.id }}"  action={growl text="buffer shared"}  %}
+           <a id="share-{{ buffer.id }}" href="#share-{{ buffer.id }}"><i class="icon-share"></i>Share Now</a></li>
+
+      </ul>
+
 
       </div>
     </div>

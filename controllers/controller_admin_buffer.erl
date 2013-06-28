@@ -26,17 +26,6 @@ html(Context) ->
     Html = z_template:render("buffer.tpl", Vars, Context),
     z_context:output(Html, Context).
 
-event({postback,{buffer_list, _Args}, _TriggerId, TargetId}, Context) -> 
-    z_render:growl(?__("Listing buffered items.", Context), Context),
-    Buffers = m_buffer:list(Context),
-    Html = z_template:render("buffer_list.tpl",[{buffers,Buffers}], Context),
-    z_render:appear(TargetId,Html,Context);
-
-event({postback,{buffer_help, _Args}, _TriggerId, TargetId}, Context) -> 
-    z_render:growl(?__("Social Buffer Help.", Context), Context),
-    Html = z_template:render("buffer_help.tpl",[], Context),
-    z_render:appear(TargetId,Html,Context);
-
 event({postback,{buffer_new_form, _Args}, _TriggerId, TargetId}, Context) -> 
     z_render:growl(?__("Displaying new buffer form.", Context), Context),
     Html = z_template:render("buffer_add_form.tpl", [],Context),
@@ -51,8 +40,20 @@ event({submit, create_buffer, _FormId, _TargetId}, Context) ->
     m_buffer:insert([Message, Schedule, Destination, Status], Context),
     z_render:growl(?__("Adding new buffer", Context), Context);
 
-event({postback,_Params, _TriggerId, _TargetId}, Context) -> 
-    z_render:growl(?__("Social Buffer : Unmatched postback params.", Context), Context).
+event({postback,{buffer_list, _Args}, _TriggerId, TargetId}, Context) -> 
+    z_render:growl(?__("Listing buffered items.", Context), Context),
+    Buffers = m_buffer:list(Context),
+    Html = z_template:render("buffer_list.tpl",[{buffers,Buffers}], Context),
+    z_render:appear(TargetId,Html,Context);
+
+event({postback,{buffer_help, _Args}, _TriggerId, TargetId}, Context) -> 
+    z_render:growl(?__("Social Buffer Help.", Context), Context),
+    Html = z_template:render("buffer_help.tpl",[], Context),
+    z_render:appear(TargetId,Html,Context);
+
+event({_Event, Params, _TriggerId, _TargetId}, Context) -> 
+    z_render:growl(?__("Social Buffer : Unmatched event.", Context), Context),
+    io:format("Mod_Buffer  Event params :  ~p", Params).
 
 %%--------------------------------------------------------------------
 %% @doc
