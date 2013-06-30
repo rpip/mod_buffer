@@ -3,10 +3,12 @@
 
 {% for buffer in m.buffer  %}
   <li id="buffer-{{ buffer.id }}" >
-    <div data-buffer-id="{{ buffer.id }}"id="buffer_content" class="content">
+    <div data-buffer-id="{{ buffer.id }}" id="buffer_content" class="content">
       <p id="message-{{ buffer.id }} " class="message" style="display:block;">{{ buffer.message }}</p>
-       <textarea id="msg-textarea-{{ buffer.id }}" class="message" style="display:none;">{{ buffer.message }}</textarea>
-    
+
+
+<textarea id="msg-textarea-{{ buffer.id }}" class="message" style="display:none;">{{ buffer.message }}</textarea>
+
       <div class="meta clearfix">
         <p class="details pull-left">
           <span>
@@ -32,7 +34,7 @@ i class="icon-time"></i> {{ buffer.schedule }}</a>
 
           <li>
            <a><i class="icon-share"></i>
-            {% button text="Share  Now"  class="buffer-action-btn" postback={buffer_share id=buffer.id } %}
+            {% button text="Share  Now"  class="buffer-action-btn" postback={buffer_share id=buffer.id} %}
            </a> 
           </li>
 

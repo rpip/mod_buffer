@@ -76,8 +76,8 @@ list(Context)->
 %% @doc Fetch a specific buffer from the database.
 %% @spec get(int(), Context) -> PropList
 get(BufferId, Context) ->
-    z_db:assoc_props_row("select * from buffer where id = $1", [BufferId], Context).
-
+   z_db:assoc_props_row("select * from buffer where id = $1", [BufferId], Context).
+   
 
 %% @doc Insert a new Buffer. Fetches the user information from the Context.
 %% @spec insert(Message::string(), Schedule::string(), Destination::string(), Status::int(), Context) -> {ok, BufferId} | {error, Reason}
