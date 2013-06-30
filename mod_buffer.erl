@@ -33,11 +33,11 @@ get_feed_data/1]).
 
 -define(BASE_URL(X), "http://www.twitter.com/" ++ X).
 -define(SERVER, ?MODULE). 
--define(DEPS_DIR,"./deps").
+-define(DEPS_DIR,"./deps/ebin").
 -include_lib("zotonic.hrl").
 -include("include/mod_buffer.hrl").
 -include_lib("modules/mod_admin/include/admin_menu.hrl").
--record(state, {context, twitter_pid, buffer}).
+-record(state, {context, twitter_pid, buffers}).
 
 
 
@@ -76,8 +76,8 @@ start_link(Args) when is_list(Args) ->
 %%--------------------------------------------------------------------
 init(Args) ->
    {context, Context} = proplists:lookup(context, Args),
-
-   %% add deps directory to the code path
+    
+   %% add deps directory to code path
    code:add_path(?DEPS_DIR),
 
    %% setup buffer table
@@ -85,12 +85,12 @@ init(Args) ->
 
     
    %% load all bufferes from db
-   Buffer = m_buffer:list(Context),
+   Buffers = m_buffer:list(Context),
 
    %% Start sharing the buffers
    case share_buffer(Buffers,Context) of
         Pid when is_pid(Pid) ->
-            {ok, #state{context=z_context:new(Context),twitter_pid=Pid, buffer=Buffer}};
+            {ok, #state{context=z_context:new(Context),twitter_pid=Pid, buffers=Buffers}};
         undefined ->
             {ok, #state{context=z_context:new(Context)}};
         not_configured ->
@@ -199,16 +199,18 @@ manage_schema(install, Context) ->
     ok.
 
 
-%% stolen from mod_twitter
-share_buffer(Buffer, Context) when is_record(Buffer, buffer)->    
+%% @doc Share the buffered items
+share_buffer(Buffers, Context) when is_list(Buffers)->    
             %% spawn a share process and return the pid
-            spawn_link(?MODULE, share, [Buffer#buffer.destination, 
-                                        [{status, Buffer#buffer.message}],
+            [spawn_link(?MODULE, share, [proplists:get_value(destination, Buffer), 
+                                        [{status, proplists:get_value(message, Buffer)}],
                                         fun(X) -> io:format("mod_buffer response from Twitter : ~p", 
-                                                            [X]) end, Context]).
+                                                            [X]) end, Context]) 
+             || Buffer <- Buffers ].
 
 
 
+%% @doc Share buffer on Twitter
 share(<<"t">>, Args, Fun, Context) ->
     Login = case m_config:get_value(?MODULE, twitter_username, false, Context) of
                 LB when is_binary(LB) ->
