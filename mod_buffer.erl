@@ -28,9 +28,10 @@
 -export([observe_admin_menu/3, manage_schema/2]).
  
 %% API
--export([share_buffer/2, share/1, add_item/1, add_feed/1, get_all/1, is_rss/1, parse_feed/1,
+-export([share_buffer/2, share/4, add_item/1, add_feed/1, get_all/1, is_rss/1, parse_feed/1,
 get_feed_data/1]).
 
+-define(BASE_URL(X), "http://www.twitter.com/" ++ X).
 -define(SERVER, ?MODULE). 
 -include_lib("zotonic.hrl").
 -include("include/mod_buffer.hrl").
@@ -38,18 +39,14 @@ get_feed_data/1]).
 -record(state, {context, twitter_pid, buffer}).
 
 
+
 %%%===================================================================
 %%% API
-%%%===================================================================
-observe_admin_menu(admin_menu, Acc, Context) ->
-    [
-     #menu_item{id=admin_buffer,
-                parent=admin_modules,
-                label=?__("Social Buffer", Context),
-                url={admin_buffer},
-                visiblecheck={acl, use, mod_buffer}}
-     
-     |Acc].
+%%%=================================================================== 
+observe_admin_menu(admin_menu, Acc, Context) -> [
+                   #menu_item{id=admin_buffer, parent=admin_modules,
+                   label=?__("Social Buffer", Context), url={admin_buffer},
+                   visiblecheck={acl, use, mod_buffer}} |Acc].
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -196,8 +193,17 @@ manage_schema(install, Context) ->
     ok.
 
 
+%% stolen from mod_twitter
+share_buffer(Buffer, Context) when is_record(Buffer, buffer)->    
+            %% spawn a share process and return the pid
+            spawn_link(?MODULE, share, [Buffer#buffer.destination, 
+                                        [{status, Buffer#buffer.message}],
+                                        fun(X) -> io:format("mod_buffer response from Twitter : ~p", 
+                                                            [X]) end, Context]).
 
-share_buffer(Buffer, Context) when is_list(Buffer)->
+
+
+share(<<"t">>, Args, Fun, Context) ->
     Login = case m_config:get_value(?MODULE, twitter_username, false, Context) of
                 LB when is_binary(LB) ->
                     binary_to_list(LB);
@@ -214,19 +220,50 @@ share_buffer(Buffer, Context) when is_list(Buffer)->
             lager:warning(": (~p) No username/password configuration.", [z_context:site(Context)]),
             not_configured;
         _ ->
-            z_session_manager:broadcast(#broadcast{type="notice", message="ready to share social buffer...", title="Social Buffer", stay=false}, Context), 
-            URL = "",
-            %% spawn a share process and return the pid
-            spawn_link(?MODULE, share, [URL, Buffer, 5, Context])
-     end.
+            z_session_manager:broadcast(#broadcast{type="notice", message="ready to share social buffer.. on Twitter.", title="Social Buffer", stay=false}, Context), 
 
-share(_Args) ->
-    ok.
+    %% prepare request data and post to Twitter
+    Url = build_url("statuses/updates.xml", Args),
+    Body = compose_body(Args),
+    case httpc:request(post, {?BASE_URL(Url), headers(Login, Pass), "application/x-www-form-urlencoded", Body} , [{timeout, 6000}], []) of
+        {ok, {_, _, Body2}} -> Fun(Body2);
+        Other -> {error, Other}
+    end
+end.
 
-get_all(Context)->
+
+build_url(Url, []) -> Url;
+build_url(Url, Args) ->
+    Url ++ "?" ++ lists:concat(
+        lists:foldl(
+            fun (Rec, []) -> [Rec]; (Rec, Ac) -> [Rec, "&" | Ac] end, [],
+            [K ++ "=" ++ z_utils:url_encode(V) || {K, V} <- Args]
+        )
+    ).
+
+headers(nil, nil) -> [{"User-Agent", "Zotonic mod_buffer/0.1"}];
+headers(User, Pass) when is_binary(User) ->
+    headers(binary_to_list(User), Pass);
+headers(User, Pass) when is_binary(Pass) ->
+    headers(User, binary_to_list(Pass));
+headers(User, Pass) ->
+    Basic = "Basic " ++ binary_to_list(base64:encode(User ++ ":" ++ Pass)),
+    [{"User-Agent", "Zotonic mod_buffer/0.1"}, {"Authorization", Basic}, {"Host", "twitter.com"}].
+
+
+compose_body(Args) ->
+    lists:concat(
+        lists:foldl(
+            fun (Rec, []) -> [Rec]; (Rec, Ac) -> [Rec, "&" | Ac] end,
+            [],
+            [K ++ "=" ++ z_utils:url_encode(V) || {K, V} <- Args]
+        )
+    ).
+
+get_all(_Context)->
   ok.
 
-add_item(Item) ->
+add_item(_Item) ->
     ok.
 
 is_rss(Arg) ->
@@ -237,13 +274,12 @@ is_rss(Arg) ->
             false                                                                     
       end.
 
-add_feed(URL) ->
+add_feed(_URL) ->
     ok.
 
-get_feed_data(URL) ->
+get_feed_data(_URL) ->
     %Result httpc:request(URL).
     ok.
 
-parse_feed(Feed)->
+parse_feed(_Feed)->
     ok.
-
