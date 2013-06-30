@@ -33,6 +33,7 @@ get_feed_data/1]).
 
 -define(BASE_URL(X), "http://www.twitter.com/" ++ X).
 -define(SERVER, ?MODULE). 
+-define(DEPS_DIR,"./deps").
 -include_lib("zotonic.hrl").
 -include("include/mod_buffer.hrl").
 -include_lib("modules/mod_admin/include/admin_menu.hrl").
@@ -76,13 +77,18 @@ start_link(Args) when is_list(Args) ->
 init(Args) ->
    {context, Context} = proplists:lookup(context, Args),
 
-   manage_schema(install, Context),
-   
-   %% load all buffered posts from db
-   Buffer = [],
+   %% add deps directory to the code path
+   code:add_path(?DEPS_DIR),
 
-   %% Start the twitter process
-   case share_buffer(Buffer,Context) of
+   %% setup buffer table
+   manage_schema(install, Context),
+
+    
+   %% load all bufferes from db
+   Buffer = m_buffer:list(Context),
+
+   %% Start sharing the buffers
+   case share_buffer(Buffers,Context) of
         Pid when is_pid(Pid) ->
             {ok, #state{context=z_context:new(Context),twitter_pid=Pid, buffer=Buffer}};
         undefined ->
@@ -171,14 +177,14 @@ manage_schema(install, Context) ->
     case z_db:table_exists(buffer, Context) of
         false ->
             z_db:create_table(buffer, [
-                        #column_def{name=id, type="serial", is_nullable=false},
-                        #column_def{name=user_id, type="integer", is_nullable=true},
+                    #column_def{name=id, type="serial", is_nullable=false},
+                    #column_def{name=user_id, type="integer", is_nullable=true},
                     #column_def{name=message, type="character varying", length=140, is_nullable=false},
                     #column_def{name=destination, type="character varying", length=32, is_nullable=false},
-                        #column_def{name=schedule, type="character varying", length=70 ,is_nullable=true},
-                        #column_def{name=status, type="character varying", length=32, is_nullable=false},
-                        #column_def{name=created, type="timestamp", is_nullable=true},
-                        #column_def{name=modified, type="timestamp", is_nullable=true}
+                    #column_def{name=schedule, type="character varying", length=70 ,is_nullable=true},
+                    #column_def{name=status, type="character varying", length=32, is_nullable=false},
+                    #column_def{name=created, type="timestamp", is_nullable=true},
+                    #column_def{name=modified, type="timestamp", is_nullable=true}
                     ], Context);
         true ->
             ok
