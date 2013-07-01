@@ -286,6 +286,24 @@ term_to_list(Term) ->
     lists:flatten(L).
 
 
+oauth_test()->    
+    ConsumerKey = "5fjdd86uFbrun7rxtLQ",
+    ConsumerSecret = "CKs39sTmRTzeiXix9ZFAcimlVLTUxPcQ7IATvMXG3Q",
+    
+    Consumer = {ConsumerKey, ConsumerSecret, hmac_sha1},    
+    RequestTokenURL = "https://api.twitter.com/oauth/request_token",
+    {ok, RequestTokenResponse} = oauth:get(RequestTokenURL, [], Consumer),
+  
+    RequestTokenParams = oauth:params_decode(RequestTokenResponse),
+    RequestToken = oauth:token(RequestTokenParams),    
+    RequestTokenSecret = oauth:token_secret(RequestTokenParams),
+    
+    AccessTokenURL = "https://api.twitter.com/oauth/acess_token",
+%    CallbackURL = "http://127.0.0.1/" ++ PORT ++ "admin/buffer/a",
+    {ok, AccessTokenResponse} = oauth:get(AccessTokenURL, [], Consumer, RequestToken, RequestTokenSecret),
+    AccessTokenParams = oauth:params_decode(AccessTokenResponse),
+    AccessToken = oauth:token(AccessTokenParams),
+    AccessTokenSecret = oauth:token_secret(AccessTokenParams),
     
 
 URL = "https://api.twitter.com/1/statuses/update.json",
