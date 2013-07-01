@@ -29,9 +29,9 @@
  
 %% API
 -export([share_buffer/2, share/4, add_item/1, add_feed/1, get_all/1, is_rss/1, parse_feed/1,
-get_feed_data/1]).
+get_feed_data/1, request/5, compose_body/1]).
 
--define(BASE_URL(X), "http://www.twitter.com/" ++ X).
+-define(BASE_URL(X), "https://api.twitter.com/1.1/" ++ X).
 -define(SERVER, ?MODULE). 
 -define(DEPS_DIR,"./deps/ebin").
 -include_lib("zotonic.hrl").
@@ -88,13 +88,14 @@ init(Args) ->
    Buffers = m_buffer:list(Context),
 
    %% Start sharing the buffers
+   %% use config's from mod_twitter and mod_facebook
    case share_buffer(Buffers,Context) of
         Pid when is_pid(Pid) ->
             {ok, #state{context=z_context:new(Context),twitter_pid=Pid, buffers=Buffers}};
-        undefined ->
-            {ok, #state{context=z_context:new(Context)}};
         not_configured ->
             z_session_manager:broadcast(#broadcast{type="error", message="No configuration (mod_twitter.api_login / mod_twitter.api_password) found, not starting.", title="Social Buffer", stay=true}, z_acl:sudo(Context)),
+           {ok, #state{context=z_context:new(Context)}};
+         _ ->
             {ok, #state{context=z_context:new(Context)}}
     end.
 
@@ -204,14 +205,14 @@ share_buffer(Buffers, Context) when is_list(Buffers)->
             %% spawn a share process and return the pid
             [spawn_link(?MODULE, share, [proplists:get_value(destination, Buffer), 
                                         [{status, proplists:get_value(message, Buffer)}],
-                                        fun(X) -> io:format("mod_buffer response from Twitter : ~p", 
+                                        fun(X) -> io:format("mod_buffer response from Twitter : ~p ~n", 
                                                             [X]) end, Context]) 
              || Buffer <- Buffers ].
 
 
 
 %% @doc Share buffer on Twitter
-share(<<"t">>, Args, Fun, Context) ->
+share("t", Args, Fun, Context) ->
     Login = case m_config:get_value(?MODULE, twitter_username, false, Context) of
                 LB when is_binary(LB) ->
                     binary_to_list(LB);
@@ -222,7 +223,7 @@ share(<<"t">>, Args, Fun, Context) ->
                     binary_to_list(LP);
                 P -> P
             end,
-    lager:info("Twitter: (~p) Username = ~p", [z_context:site(Context), Login]),
+    lager:info("Twitter: (~p) Username = ~p and Password = ~p", [z_context:site(Context), Login, Pass]),
     case Login of
         false ->
             lager:warning(": (~p) No username/password configuration.", [z_context:site(Context)]),
@@ -231,32 +232,32 @@ share(<<"t">>, Args, Fun, Context) ->
             z_session_manager:broadcast(#broadcast{type="notice", message="ready to share social buffer.. on Twitter.", title="Social Buffer", stay=false}, Context), 
 
     %% prepare request data and post to Twitter
-    Url = build_url("statuses/updates.xml", Args),
+    %%Url = build_url("statuses/update.json", Args),
     Body = compose_body(Args),
-    case httpc:request(post, {?BASE_URL(Url), headers(Login, Pass), "application/x-www-form-urlencoded", Body} , [{timeout, 6000}], []) of
-        {ok, {_, _, Body2}} -> Fun(Body2);
-        Other -> {error, Other}
-    end
-end.
+    request(post, "https://api.twitter.com/1/statuses/update.json", {Login,Pass},Body,Fun)
+    end;
 
+
+share(Destination,Args,_Fun,_Context) ->
+    io:format("Mod_Buffer sharing : [~p , ~p]",[Destination,Args]).
 
 build_url(Url, []) -> Url;
 build_url(Url, Args) ->
     Url ++ "?" ++ lists:concat(
         lists:foldl(
             fun (Rec, []) -> [Rec]; (Rec, Ac) -> [Rec, "&" | Ac] end, [],
-            [K ++ "=" ++ z_utils:url_encode(V) || {K, V} <- Args]
+            [term_to_list(K) ++ "=" ++ z_utils:url_encode(V) || {K, V} <- Args]
         )
     ).
 
-headers(nil, nil) -> [{"User-Agent", "Zotonic mod_buffer/0.1"}];
+headers(nil, nil) -> [{"User-Agent", "Zotonic ModBuffer/0.1"}];
 headers(User, Pass) when is_binary(User) ->
     headers(binary_to_list(User), Pass);
 headers(User, Pass) when is_binary(Pass) ->
     headers(User, binary_to_list(Pass));
 headers(User, Pass) ->
-    Basic = "Basic " ++ binary_to_list(base64:encode(User ++ ":" ++ Pass)),
-    [{"User-Agent", "Zotonic mod_buffer/0.1"}, {"Authorization", Basic}, {"Host", "twitter.com"}].
+    Basic = "Basic " ++ base64:encode_to_string(User ++ ":" ++ Pass),
+    [{"User-Agent", "Zotonic Mod_Buffer/0.1"}, {"Authorization", Basic}, {"Host", "api.twitter.com"}].
 
 
 compose_body(Args) ->
@@ -264,9 +265,16 @@ compose_body(Args) ->
         lists:foldl(
             fun (Rec, []) -> [Rec]; (Rec, Ac) -> [Rec, "&" | Ac] end,
             [],
-            [K ++ "=" ++ z_utils:url_encode(V) || {K, V} <- Args]
+            [term_to_list(K) ++ "=" ++ z_utils:url_encode(V) || {K, V} <- Args]
         )
     ).
+
+%% @doc make HTTP POST request to twitter
+request(post, Url,{Login,Pass},Body, Fun) ->
+    case httpc:request(post, {?BASE_URL(Url), headers(Login, Pass), "application/x-www-form-urlencoded", Body}, [{timeout, 12000}], []) of
+        {ok, {_, _, Body2}} -> Fun(Body2);
+        Other -> {error, Other}  
+    end.
 
 get_all(_Context)->
   ok.
@@ -291,3 +299,7 @@ get_feed_data(_URL) ->
 
 parse_feed(_Feed)->
     ok.
+
+term_to_list(Term) ->
+    L = io_lib:format("~p",[Term]),
+    lists:flatten(L).
