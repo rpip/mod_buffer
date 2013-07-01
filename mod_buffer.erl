@@ -28,8 +28,7 @@
 -export([observe_admin_menu/3, manage_schema/2]).
  
 %% API
--export([share_buffer/2, share/4, add_item/1, add_feed/1, get_all/1, is_rss/1, parse_feed/1,
-get_feed_data/1, request/5, compose_body/1]).
+-export([share_buffer/2, share/4, request/5, compose_body/1,oauth_test/0]).
 
 -define(BASE_URL(X), "https://api.twitter.com/1.1/" ++ X).
 -define(SERVER, ?MODULE). 
@@ -232,9 +231,9 @@ share("t", Args, Fun, Context) ->
             z_session_manager:broadcast(#broadcast{type="notice", message="ready to share social buffer.. on Twitter.", title="Social Buffer", stay=false}, Context), 
 
     %% prepare request data and post to Twitter
-    %%Url = build_url("statuses/update.json", Args),
+    Url = build_url("statuses/update.json", Args),
     Body = compose_body(Args),
-    request(post, "https://api.twitter.com/1/statuses/update.json", {Login,Pass},Body,Fun)
+    request(post, Url, {Login,Pass},Body,Fun)
     end;
 
 
@@ -271,35 +270,24 @@ compose_body(Args) ->
 
 %% @doc make HTTP POST request to twitter
 request(post, Url,{Login,Pass},Body, Fun) ->
+%    Taken from mod_twitter :
+%    URL = "https://" ++ Login ++ ":" ++ Pass ++ "@api.twitter.com/1.1/statuses/update.json",
+%    case httpc:request(post, 
+%                       {URL, headers(Login,Pass), "application/x-www-form-urlencoded", Body},
+%                       [{timeout, 6000}],[]) of
     case httpc:request(post, {?BASE_URL(Url), headers(Login, Pass), "application/x-www-form-urlencoded", Body}, [{timeout, 12000}], []) of
         {ok, {_, _, Body2}} -> Fun(Body2);
         Other -> {error, Other}  
     end.
 
-get_all(_Context)->
-  ok.
-
-add_item(_Item) ->
-    ok.
-
-is_rss(Arg) ->
-    case z_string:ends_with(".rss", Arg) or z_string:ends_with(".xml", Arg) of
-      true ->
-            true;
-      _  ->
-            false                                                                     
-      end.
-
-add_feed(_URL) ->
-    ok.
-
-get_feed_data(_URL) ->
-    %Result httpc:request(URL).
-    ok.
-
-parse_feed(_Feed)->
-    ok.
 
 term_to_list(Term) ->
     L = io_lib:format("~p",[Term]),
     lists:flatten(L).
+
+
+    
+
+URL = "https://api.twitter.com/1/statuses/update.json",
+    {ok, Response} = oauth:post(URL, [{"status", "Hello World"}], Consumer, AccessToken, AccessTokenSecret),  
+    oauth:params_decode(Response).
