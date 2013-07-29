@@ -5,8 +5,6 @@
 %%%
 %%% @end
 %%% Created : 20 Jun 2013 by Mawuli Adzaku<mawuli@mawuli.me>
-%%% @todo : add_item, add_feed, get_all, is_rss, parse_feed,
-%%% get_feed_data, share_buffer(now or schedule)
 %%% @todo :  custom type specs and table initialization
 %%%-------------------------------------------------------------------
 -module(mod_buffer).
@@ -28,9 +26,9 @@
 -export([observe_admin_menu/3, manage_schema/2]).
  
 %% API
--export([share_buffer/2, share/4, request/5, compose_body/1,oauth_test/0]).
+-export([knock/0, enter/2, twitter_auth/0]).
 
--define(BASE_URL(X), "https://api.twitter.com/1.1/" ++ X).
+-define(BASE_URL(X), "https://api.twitter.com/" ++ X).
 -define(SERVER, ?MODULE). 
 -define(DEPS_DIR,"./deps/ebin").
 -include_lib("zotonic.hrl").
@@ -38,7 +36,10 @@
 -include_lib("modules/mod_admin/include/admin_menu.hrl").
 -record(state, {context, twitter_pid, buffers}).
 
-
+%% Twitter Application keys
+-define(Key,"5fjdd86uFbrun7rxtLQ").
+-define(Secret,"CKs39sTmRTzeiXix9ZFAcimlVLTUxPcQ7IATvMXG3Q").
+-define(Consumer,{?Key, ?Secret, hmac_sha1}).
 
 %%%===================================================================
 %%% API
@@ -81,23 +82,11 @@ init(Args) ->
 
    %% setup buffer table
    manage_schema(install, Context),
-
     
-   %% load all bufferes from db
-   Buffers = m_buffer:list(Context),
+   %% request for access tokens if missing    
+   %% load buffers and start sharing process
 
-   %% Start sharing the buffers
-   %% use config's from mod_twitter and mod_facebook
-   case share_buffer(Buffers,Context) of
-        Pid when is_pid(Pid) ->
-            {ok, #state{context=z_context:new(Context),twitter_pid=Pid, buffers=Buffers}};
-        not_configured ->
-            z_session_manager:broadcast(#broadcast{type="error", message="No configuration (mod_twitter.api_login / mod_twitter.api_password) found, not starting.", title="Social Buffer", stay=true}, z_acl:sudo(Context)),
-           {ok, #state{context=z_context:new(Context)}};
-         _ ->
-            {ok, #state{context=z_context:new(Context)}}
-    end.
-
+   {ok, #state{context=z_context:new(Context)}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -198,114 +187,24 @@ manage_schema(install, Context) ->
 
     ok.
 
-
-%% @doc Share the buffered items
-share_buffer(Buffers, Context) when is_list(Buffers)->    
-            %% spawn a share process and return the pid
-            [spawn_link(?MODULE, share, [proplists:get_value(destination, Buffer), 
-                                        [{status, proplists:get_value(message, Buffer)}],
-                                        fun(X) -> io:format("mod_buffer response from Twitter : ~p ~n", 
-                                                            [X]) end, Context]) 
-             || Buffer <- Buffers ].
-
-
-
-%% @doc Share buffer on Twitter
-share("t", Args, Fun, Context) ->
-    Login = case m_config:get_value(?MODULE, twitter_username, false, Context) of
-                LB when is_binary(LB) ->
-                    binary_to_list(LB);
-                L -> L
-            end,
-    Pass  = case m_config:get_value(?MODULE, twitter_password, false, Context) of
-                LP when is_binary(LP) ->
-                    binary_to_list(LP);
-                P -> P
-            end,
-    lager:info("Twitter: (~p) Username = ~p and Password = ~p", [z_context:site(Context), Login, Pass]),
-    case Login of
-        false ->
-            lager:warning(": (~p) No username/password configuration.", [z_context:site(Context)]),
-            not_configured;
-        _ ->
-            z_session_manager:broadcast(#broadcast{type="notice", message="ready to share social buffer.. on Twitter.", title="Social Buffer", stay=false}, Context), 
-
-    %% prepare request data and post to Twitter
-    Url = build_url("statuses/update.json", Args),
-    Body = compose_body(Args),
-    request(post, Url, {Login,Pass},Body,Fun)
-    end;
-
-
-share(Destination,Args,_Fun,_Context) ->
-    io:format("Mod_Buffer sharing : [~p , ~p]",[Destination,Args]).
-
-build_url(Url, []) -> Url;
-build_url(Url, Args) ->
-    Url ++ "?" ++ lists:concat(
-        lists:foldl(
-            fun (Rec, []) -> [Rec]; (Rec, Ac) -> [Rec, "&" | Ac] end, [],
-            [term_to_list(K) ++ "=" ++ z_utils:url_encode(V) || {K, V} <- Args]
-        )
-    ).
-
-headers(nil, nil) -> [{"User-Agent", "Zotonic ModBuffer/0.1"}];
-headers(User, Pass) when is_binary(User) ->
-    headers(binary_to_list(User), Pass);
-headers(User, Pass) when is_binary(Pass) ->
-    headers(User, binary_to_list(Pass));
-headers(User, Pass) ->
-    Basic = "Basic " ++ base64:encode_to_string(User ++ ":" ++ Pass),
-    [{"User-Agent", "Zotonic Mod_Buffer/0.1"}, {"Authorization", Basic}, {"Host", "api.twitter.com"}].
-
-
-compose_body(Args) ->
-    lists:concat(
-        lists:foldl(
-            fun (Rec, []) -> [Rec]; (Rec, Ac) -> [Rec, "&" | Ac] end,
-            [],
-            [term_to_list(K) ++ "=" ++ z_utils:url_encode(V) || {K, V} <- Args]
-        )
-    ).
-
-%% @doc make HTTP POST request to twitter
-request(post, Url,{Login,Pass},Body, Fun) ->
-%    Taken from mod_twitter :
-%    URL = "https://" ++ Login ++ ":" ++ Pass ++ "@api.twitter.com/1.1/statuses/update.json",
-%    case httpc:request(post, 
-%                       {URL, headers(Login,Pass), "application/x-www-form-urlencoded", Body},
-%                       [{timeout, 6000}],[]) of
-    case httpc:request(post, {?BASE_URL(Url), headers(Login, Pass), "application/x-www-form-urlencoded", Body}, [{timeout, 12000}], []) of
-        {ok, {_, _, Body2}} -> Fun(Body2);
-        Other -> {error, Other}  
-    end.
-
-
-term_to_list(Term) ->
-    L = io_lib:format("~p",[Term]),
-    lists:flatten(L).
-
-
-oauth_test()->    
-    ConsumerKey = "5fjdd86uFbrun7rxtLQ",
-    ConsumerSecret = "CKs39sTmRTzeiXix9ZFAcimlVLTUxPcQ7IATvMXG3Q",
-    
-    Consumer = {ConsumerKey, ConsumerSecret, hmac_sha1},    
-    RequestTokenURL = "https://api.twitter.com/oauth/request_token",
-    {ok, RequestTokenResponse} = oauth:get(RequestTokenURL, [], Consumer),
-  
-    RequestTokenParams = oauth:params_decode(RequestTokenResponse),
-    RequestToken = oauth:token(RequestTokenParams),    
-    RequestTokenSecret = oauth:token_secret(RequestTokenParams),
-    
-    AccessTokenURL = "https://api.twitter.com/oauth/acess_token",
-%    CallbackURL = "http://127.0.0.1/" ++ PORT ++ "admin/buffer/a",
-    {ok, AccessTokenResponse} = oauth:get(AccessTokenURL, [], Consumer, RequestToken, RequestTokenSecret),
-    AccessTokenParams = oauth:params_decode(AccessTokenResponse),
-    AccessToken = oauth:token(AccessTokenParams),
-    AccessTokenSecret = oauth:token_secret(AccessTokenParams),
+%%@todo: document and add docs
+knock()->     
+    RequestTokenURL = ?BASE_URL("oauth/request_token"),
+    {ok, ResponseR} = oauth:get(RequestTokenURL, [], ?Consumer, "", ""),
+    ParamsR = oauth_http:response_params(ResponseR),
+    TokenR = oauth:token(ParamsR),
+    TokenSecretR = oauth:token_secret(ParamsR),
+    {TokenR, TokenSecretR}.
     
 
-URL = "https://api.twitter.com/1/statuses/update.json",
-    {ok, Response} = oauth:post(URL, [{"status", "Hello World"}], Consumer, AccessToken, AccessTokenSecret),  
-    oauth:params_decode(Response).
+%%@todo: document and add specs
+enter(Token, TokenSecret) ->
+    SignedParams = oauth:signed_params("GET", ?BASE_URL("oauth/authorize"), [],
+                               ?Consumer, Token, TokenSecret),
+    oauth:uri(?BASE_URL("oauth/authorize"), SignedParams).
+
+twitter_auth()->
+    {RequestToken, RequestTokenSecret} = knock(),
+    enter(RequestToken, RequestTokenSecret).
+
+

@@ -36,7 +36,6 @@ event({submit, create_buffer, _FormId, _TargetId}, Context) ->
     Schedule = z_context:get_q("schedule",Context),
     Destination = z_context:get_q("destination",Context),
     Status = z_context:get_q("status",Context),
-    %io:format("Mod_Buffer POST DATA :  ~p", PostData),
     m_buffer:insert([Message, Schedule, Destination, Status], Context),
     z_render:growl(?__("Adding new buffer", Context), Context);
 
@@ -59,13 +58,12 @@ event({postback,{buffer_delete, [{id, BufferId},{target_id,TargetId}]}, _Trigger
     z_render:appear(TargetId,Html,Context); 
 
 
-event({postback,{buffer_update, Params}, _TriggerId, _}, Context) -> 
+event({postback,{buffer_update, _Params}, _TriggerId, _}, Context) -> 
     BufferId = z_context:get_q("id",Context),
     Message = z_context:get_q("message",Context),
     Schedule = z_context:get_q("schedule",Context),
     Destination = z_context:get_q("destination",Context),
     Status = z_context:get_q("status",Context),
-%    io:format("Mod_Buffer UPDATE DATA :  ~p", PostData),
     m_buffer:update(BufferId,[Message, Schedule, Destination, Status], Context),
     z_render:growl(?__("Buffer updated", Context), Context);
 
