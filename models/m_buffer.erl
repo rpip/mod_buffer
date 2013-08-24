@@ -33,7 +33,8 @@
     get/2,
     insert/2,
     update/6,
-    delete/2
+    delete/2,
+    mark_shared/2
 ]).
 
 -include_lib("zotonic.hrl").
@@ -90,16 +91,15 @@ insert([Message, Schedule, Destination, Status] = _PostData, Context) ->
                 {user_id, z_acl:user(Context)},
                 {message, z_html:escape(z_string:trim(Message))},
                 {schedule, Schedule},
-                {destination, z_string:trim(Destination)},
+                {destination, Destination},
                 {status, Status},
                 {created, LocalTime},
                 {modified, LocalTime}
             ],
             case z_db:insert(buffer, Props, Context) of
-                {ok, BufferId} = Result ->
-                    z_depcache:flush({buffer, BufferId}, Context),
-                    z_notifier:notify({buffer,BufferId}, Context),
-                    Result;
+                {ok, BufferId} = _Result ->
+		    mod_buffer:add_to_cron(BufferId, Message, Destination, Schedule, Context),
+                    ok;
                 {error, _} = Error ->
                     Error
             end;
@@ -114,20 +114,17 @@ insert([Message, Schedule, Destination, Status] = _PostData, Context) ->
 update(BufferId, Message, Schedule, Destination, Status, Context) ->
     case z_auth:is_auth(Context) of
         true ->
-            %Schedule = z_convert:to_integer(Schedule),
 	    Props = [
                 {user_id, z_acl:user(Context)},
                 {message, z_html:escape(z_string:trim(Message))},
                 {schedule, Schedule},
                 {destination, z_string:trim(Destination)},
                 {status, z_convert:to_integer(Status)},
-                {created, z_utils:now_msec()},
-                {modified, z_utils:now_msec()}
+                {modified, erlang:localtime()}
             ],
             case z_db:update(buffer, BufferId, Props, Context) of
                 {ok, BufferId} = Result ->
-                    z_depcache:flush({buffer, BufferId}, Context),
-                    z_notifier:notify({buffer,BufferId}, Context),
+                    z_notifier:notify({buffer_updated,BufferId}, Context),
                     Result;
                 {error, _} = Error ->
                     Error
@@ -140,8 +137,9 @@ update(BufferId, Message, Schedule, Destination, Status, Context) ->
 delete(BufferId, Context) ->
     case check_editable(BufferId, Context) of
         {ok, UserId} ->
-            z_db:q("delete from buffer where id = $1 and user_id = $2", [BufferId,UserId], Context),
-            z_depcache:flush({buffer, BufferId}, Context),
+            z_db:q("delete from buffer where id = $1 and user_id = $2", [BufferId, UserId], Context),
+	    %% use buffer id as job id
+	    z_notifier:first({cron_job_delete, BufferId}, Context),
             ok;
         {error, _} = Error ->
             Error
@@ -163,3 +161,12 @@ check_editable(BufferId, Context) ->
     end.
  
    
+%% @doc Delete a buffer.
+mark_shared(BufferId, Context) ->
+    case check_editable(BufferId, Context) of
+        {ok, UserId} ->
+            z_db:q("Update buffer set status='s' where id = $1 and user_id = $2", [BufferId, UserId], Context),
+            ok;
+        {error, _} = Error ->
+            Error
+    end.

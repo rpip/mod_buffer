@@ -4,17 +4,14 @@
 {% for buffer in m.buffer  %}
   <li id="buffer-{{ buffer.id }}" >
     <div data-buffer-id="{{ buffer.id }}" id="buffer_content" class="content">
-      <p id="message-{{ buffer.id }} " class="message" style="display:block;">{{ buffer.message }}</p>
-
-
-<textarea id="msg-textarea-{{ buffer.id }}" class="message" style="display:none;">{{ buffer.message }}</textarea>
+      <p id="message-{{ buffer.id }}" class="message" style="display:block;">{{ buffer.message }}</p>
 
       <div class="meta clearfix">
         <p class="details pull-left">
           <span>
-            <time original-title="Scheduled by Social Buffer"> 
+            <time id="{{ buffer.id }}" original-title="Scheduled by Social Buffer"> 
  <a data-toggle="tooltip" title="Schedule : {{ buffer.schedule }}">
-i class="icon-time"></i> {{ buffer.schedule }}</a>
+<i class="icon-time"></i> {{ buffer.schedule }}</a>
             </time>
           </span>
           </p>
@@ -25,9 +22,9 @@ i class="icon-time"></i> {{ buffer.schedule }}</a>
           
 
           <li>
-           <a><i class="icon-trash"></i>
-            {% button text="Delete"  class="buffer-action-btn" postback={buffer_delete id=buffer.id target_id="content"} %}
-
+           <a class="buffer-action-btn" id="edit-buffer-btn">
+           <i class="icon-trash"></i>
+	       Delete
            </a> 
           </li>
 
@@ -48,3 +45,6 @@ i class="icon-time"></i> {{ buffer.schedule }}</a>
   {% endfor %}
 </ol>
 </div>
+
+<!-- form to edit buffer -->
+{% include "buffer_edit_form.tpl" %}

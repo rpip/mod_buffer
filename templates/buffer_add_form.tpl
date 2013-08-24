@@ -31,7 +31,7 @@
 -->
 
 <div class="control-group">
-    <label class="control-label" for="destination">Schedule</label>
+    <label class="control-label" for="schedule">Schedule</label>
     <div class="controls">
             <input  type="text" name="schedule"  class="input" placeholder="{weekly, wed, {2, am}}">
     </div>
@@ -41,12 +41,8 @@
 <div class="control-group">
     <label class="control-label" for="destination">Destination</label>
     <div class="controls">
-      <select name="destination">
-      <option value="t">Twitter</option>
-      <option value="fb">Facebook</option>
-      <option value="g">Google Plus</option>
-      <option value="e">Email</option>
-      </select> 
+      <input type="checkbox" value="t" name="destination" /> Twitter
+      <input type="checkbox" value="fb" name="destination" /> Facebook
     </div>
 </div>
 
