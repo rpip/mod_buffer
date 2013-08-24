@@ -2,10 +2,20 @@
 ===========================
 Automagically share articles, pictures, videos, RSS Feed links through the day!
 Inspired by http://bufferapp.com, and currently supports only Twitter.
-
-## How it works
 This module uses the mod_cron module for Zotonic, and the erlang-oauth library.
 It comes with a simple UI for adding, editing, deleting, and sharing buffers.
+
+## How it works
+First, create a Twitter application and copy the application OAuth keys, and your acccess tokens.
+These keys will be used to automatically post the feeds to your timeline.
+
+Add the following configuration keys to your Zotonic application :
+
+* mb_twitter_csec - Twitter Consumer secret
+* mb_twitter_ckey - Twiter Consumer key
+* mb_access_token_secret - Twitter Access Token Secret
+* mb_access_token - Twitter Access Token
+
 
 ## Contributing
 1. Fork it
@@ -16,4 +26,5 @@ It comes with a simple UI for adding, editing, deleting, and sharing buffers.
 
 
 ## NOTE
-Still in exeprimental stage, and  not ready for use, yet.
+Still in exeprimental stage, and not ready for use, yet.
+
