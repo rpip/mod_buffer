@@ -1,5 +1,5 @@
 # Mod_Buffer for Zotonic
-===========================
+-------------------------
 Automagically share articles, pictures, videos, RSS Feed links through the day!
 Inspired by http://bufferapp.com, and currently supports only Twitter.
 This module uses the mod_cron module for Zotonic, and the erlang-oauth library.
